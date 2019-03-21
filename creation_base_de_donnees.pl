@@ -4,7 +4,7 @@ use warnings;
 use DBI;
 
 my $dbh = DBI->connect("DBI:Pg:dbname=ahucteau;host=dbserver","ahucteau","",{'RaiseError' => 1});
-# $dbh->do("CREATE table A(UniProtKB varchar(20) primary key, Transcript_stable_ID varchar(20), Gene_stable_ID varchar(20), Plant_Reactome_Reaction_ID varchar(20))");
+$dbh->do("CREATE table A(UniProtKB varchar(20) primary key, Transcript_stable_ID varchar(20), Gene_stable_ID varchar(20), Plant_Reactome_Reaction_ID varchar(20))");
 my @tmp;
 my $a;
 open (fichier1, "martexport_cleaned.csv");
