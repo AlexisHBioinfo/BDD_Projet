@@ -8,6 +8,7 @@ $dbh->do("CREATE table Genes(Gene_names text primary key, Genename_synonym text,
 my @tmp;
 my $a;
 my @list_primary_key;
+push (@list_primary_key, "");
 my $dupli=1;
 open (fichier1, "uniprot_file.csv");
 my $header=0;
@@ -15,10 +16,8 @@ while (<fichier1>){
   chomp;
   if ($header){
     @tmp = split (/\t/,$_);
-    for my $key (@list_primary_key){
-      if ($tmp[4] eq $key){
-        $dupli=0;
-      }
+    if ($tmp[4] ~~ @list_primary_key){
+      $dupli=0;
     }
     if ($dupli){
       if ($tmp[7]){
