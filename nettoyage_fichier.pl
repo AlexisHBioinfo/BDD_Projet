@@ -3,9 +3,15 @@ use strict;
 use warnings;
 my @tmp;
 my @primary;
-open (fichier2,">martexport_cleaned.csv");
+my $processing=0;
+print "process en cours...\n";
 open (fichier1, "mart_export.csv");
+open (fichier2,">martexport_cleaned.csv");
 while (<fichier1>){
+  $processing++;
+  if ($processing%5000==0){
+    print "...\n";
+  }
   chomp;
   @tmp = split (/,/,$_);
   my $dupli=1;
@@ -21,7 +27,7 @@ while (<fichier1>){
         print fichier2 $tmp[0], ",", $tmp[1], ",",$tmp[2], ",",$tmp[3];
       }
       else {
-        print fichier2 $tmp[0],",", $tmp[1], ",",$tmp[2];
+        print fichier2 $tmp[0], ",", $tmp[1], ",",$tmp[2], ",";
       }
       print fichier2 "\n";
     }
@@ -29,3 +35,4 @@ while (<fichier1>){
 }
 close (fichier1);
 close (fichier2);
+print "FINI !\n";
