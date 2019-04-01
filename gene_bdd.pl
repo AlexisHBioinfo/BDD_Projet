@@ -24,7 +24,7 @@ while (<fichier1>){
         $a += $dbh -> do ("INSERT INTO Genes(Gene_names, Genename_synonym, Gene_ontology) VALUES ('$tmp[4]', '$tmp[7]', '$tmp[8]')");
       }
       else {
-        $a += $dbh -> do ("INSERT INTO Genes(Gene_names, Genename_synonym, Gene_ontology) VALUES ('$tmp[4]', 'None', '$tmp[8]')");
+        $a += $dbh -> do ("INSERT INTO Genes(Gene_names, Genename_synonym, Gene_ontology) VALUES ('$tmp[4]', NULL, '$tmp[8]')");
       }
       push (@list_primary_key, $tmp[4]);
     }
