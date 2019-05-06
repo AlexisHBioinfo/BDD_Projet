@@ -3,7 +3,7 @@ use strict;
 use warnings;
 my @tmp3;
 open(fichier3,"uniprot-arabidopsisthalianaSequence.tab");
-open(fichier4,">uniprot_file.csv");
+open(fichier4,">uniprot_file.tab");
 while (<fichier3>){
   chomp;
   @tmp3=split(/\t/,$_);

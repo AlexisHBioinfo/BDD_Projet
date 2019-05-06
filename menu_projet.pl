@@ -16,6 +16,12 @@ while (1){
     print "Quel est le nom de la protéine ?\n";
     my $protein_name=<STDIN>;
     chomp($protein_name);
+    print "La protéine est-elle reviewed ou unreviewed ?\n";
+    my $viewed=<STDIN>;
+    chomp($viewed);
+    if (($viewed ne 'reviewed') && ($viewed ne 'unreviewed')){
+      $viewed='unreviewed';
+    }
     print "Quelle est la longueur de cette protéine ?\n";
     my $length=<STDIN>;
     chomp($length);
@@ -31,14 +37,10 @@ while (1){
     print "Quel est le nom de son gène ?\n";
     my $gene_name=<STDIN>;
     chomp($gene_name);
-    print "Quel est son synonyme ?\n";
-    my $synonyme=<STDIN>;
-    chomp($synonyme);
-    print "Quel est son ontologie ?\n";
-    my $ontology=<STDIN>;
-    chomp($ontology);
-    $dbh -> do ("INSERT INTO Protein(Entry, Protein_name, Length, EnsemblPlants, Sequence) VALUES ('$uniprot', '$protein_name', '$length', '$ensemblPlants', '$sequence')");
-    $dbh -> do ("INSERT INTO Genes(Gene_names, Genename_synonym, Gene_ontology) VALUES ('$gene_name', '$synonyme', '$ontology')");
+    print "A quel organisme appartient cette protéine ?";
+    my $organisme=<STDIN>;
+    chomp($organisme);
+    $dbh -> do ("INSERT INTO Main(Entry, Status, Organism, Protein_name, Length, EnsemblPlants, Sequence, Gene_names) VALUES ('$uniprot','$viewed', '$organisme', '$protein_name', '$length', '$ensemblPlants', '$sequence', '$gene_name')");
   }
   if ($choix==1){
     print "Quelle protéine voulez vous en modifier la séquence ?\n";
@@ -47,7 +49,7 @@ while (1){
     print "Veuillez entrer la nouvelle séquence !\n";
     my $newSequence=<STDIN>;
     chomp($newSequence);
-    $dbh -> do ("UPDATE Protein SET Sequence='$newSequence' WHERE Entry='$requete_proteine';");
+    $dbh -> do ("UPDATE Main SET Sequence='$newSequence' WHERE Entry='$requete_proteine';");
   }
   if ($choix==2){
     my $req = $dbh->prepare("SELECT Entry_uniprot FROM Reaction") or die $dbh->errstr();
@@ -58,33 +60,59 @@ while (1){
     $req->finish;
   }
   if ($choix==3){
+    open(EnsemblPlant_file,">EnsemblPlant_file.html");
+    print EnsemblPlant_file "<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n<TABLE BORDER=\"1\">\n";
     my $req = $dbh->prepare("SELECT Gene_names FROM Genes A JOIN Reaction B on A.Gene_names=B.Gene_stable_ID");
     $req->execute() or die $req->errstr();
     while (my @t = $req->fetchrow_array()) {
+      print EnsemblPlant_file "\n<TR>\n";
       print join(" ",@t),"\n";
+      for my $x (@t){
+        print EnsemblPlant_file "\n<TH>";
+        print EnsemblPlant_file $x;
+        print EnsemblPlant_file "</TH>\n";
+      }
+      print EnsemblPlant_file "\n</TR>\n";
     }
     $req->finish;
+    close(EnsemblPlant_file);
+    print "\nUn fichier HTML : EnsemblPlant_file.html a été créé !\n";
   }
   if ($choix==4){
     print ("Quelle longueur minimale ?\n");
     my $input=<STDIN>;
-    my $req = $dbh->prepare("SELECT Entry FROM Protein WHERE Length>'$input'");
+    chomp($input);
+    open(prot_length, ">Prot_length_$input.html");
+    print prot_length "<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n<TABLE BORDER=\"1\">\n";
+    my $req = $dbh->prepare("SELECT Entry,Length FROM Main WHERE Length>'$input'");
     $req->execute() or die $req->errstr();
     while (my @t = $req->fetchrow_array()) {
       print join(" ",@t),"\n";
+      print prot_length "\n<TR>\n";
+      for my $x (@t){
+        print prot_length "\n<TH>";
+        print prot_length $x;
+        print prot_length "</TH>\n";
+      }
+      print prot_length "\n</TR>\n";
     }
     $req->finish;
+    print prot_length "\n</TABLE>\n</html>\n";
+    close (prot_length);
+    print "\nUn fichier HTML : Prot_length_", $input,".html a été créé !\n";
   }
   if ($choix==5){
-    print "Quel est l'EC number de la protéine recherchée.\n";
+    print "Quel est l'EC number de la protéine recherchée ?\n";
     my $prot_input=<STDIN>;
     chomp($prot_input);
     open(prot_input,">EC_$prot_input.html");
+    my $name=$prot_input;
     print prot_input "<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n<TABLE BORDER=\"1\">\n";
     $prot_input='(EC '.$prot_input.')';
-    my $req = $dbh->prepare("SELECT * FROM Protein WHERE protein_name ~ '$prot_input'");
+    my $req = $dbh->prepare("SELECT * FROM Main WHERE protein_name ~ '$prot_input'");
     $req->execute() or die $req->errstr();
     while (my @t = $req->fetchrow_array()) {
+      print join(" ",@t),"\n";
       print prot_input "\n<TR>\n";
       for my $x (@t){
         print prot_input "\n<TH>";
@@ -96,6 +124,7 @@ while (1){
     $req->finish;
     print prot_input "\n</TABLE>\n</html>\n";
     close (prot_input);
+    print "\nUn fichier HTML : EC_",$name,".html a été créé !\n";
   }
 }
 $dbh->disconnect();

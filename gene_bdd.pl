@@ -7,12 +7,17 @@ my $dbh = DBI->connect("DBI:Pg:dbname=ahucteau;host=dbserver","ahucteau","",{'Ra
 $dbh->do("CREATE table Genes(Gene_names text primary key, Genename_synonym text, Gene_ontology text)");
 my @tmp;
 my $a;
+my $processing=0;
 my @list_primary_key;
 push (@list_primary_key, "");
 my $dupli=1;
-open (fichier1, "uniprot_file.csv");
+open (fichier1, "uniprot_file.tab");
 my $header=0;
 while (<fichier1>){
+  if ($processing%1000==0){
+    print "Process en cours ! \t Actuellement à la ligne : ",$processing, "\n";
+  }
+  $processing++;
   chomp;
   if ($header){
     @tmp = split (/\t/,$_);

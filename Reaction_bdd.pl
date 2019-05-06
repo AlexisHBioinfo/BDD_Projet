@@ -7,9 +7,14 @@ my $dbh = DBI->connect("DBI:Pg:dbname=ahucteau;host=dbserver","ahucteau","",{'Ra
 $dbh->do("CREATE table Reaction(Entry_Uniprot varchar(20) primary key, Gene_stable_ID varchar(20), Transcript_stable_ID varchar(20), Plant_Reactom varchar(20))");
 open (fichier2, "martexport_cleaned.csv");
 my $b;
+my $processing=0;
 my @tmp2;
 my $header2=0;
 while (<fichier2>){
+  if ($processing%1000==0){
+    print "Process en cours ! \t Actuellement à la ligne : ",$processing, "\n";
+  }
+  $processing++;
   chomp;
   if ($header2){
     @tmp2=split(/,/,$_);
